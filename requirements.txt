@@ -1,0 +1,10 @@
+pandas
+openpyxl
+requests
+sentence-transformers
+huggingface_hub
+chromadb
+openai
+anthropic
+google-generativeai
+python-dotenv

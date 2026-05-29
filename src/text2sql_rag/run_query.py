@@ -1,0 +1,1 @@
+import sqlite3 def run_sql_on_csv(sql: str, db_path="data/healthcare.db"): conn = sqlite3.connect(db_path) cursor = conn.cursor() try: cursor.execute(sql) rows = cursor.fetchall() cols = [desc[0] for desc in cursor.description] return cols, rows except Exception as e: return [], [f"Error: {e}"]

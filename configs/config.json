@@ -1,0 +1,74 @@
+{
+  "system": {
+    "name": "Text2SQL RAG System",
+    "version": "1.0.0",
+    "description": "ระบบแปลงคำถามภาษาไทยเป็น SQL ด้วย RAG"
+  },
+  "llm": {
+    "default_model": "typhoon",
+    "models": {
+      "typhoon": {
+        "name": "typhoon-v2.1-12b-instruct",
+        "endpoint": "https://api.opentyphoon.ai/v1/chat/completions",
+        "max_tokens": 2000,
+        "temperature": 0.0
+      },
+      "openai": {
+        "name": "gpt-4o-mini",
+        "max_tokens": 2000,
+        "temperature": 0.0
+      },
+      "claude": {
+        "name": "claude-3-sonnet-20240229",
+        "max_tokens": 2000,
+        "temperature": 0.0
+      }
+    }
+  },
+  "embedding": {
+    "default_model": "bge-base-en-v1.5",
+    "models": {
+      "all-MiniLM-L6-v2": {
+        "name": "sentence-transformers/all-MiniLM-L6-v2",
+        "type": "local"
+      },
+      "bge-base-en-v1.5": {
+        "name": "BAAI/bge-base-en-v1.5",
+        "type": "hf_api"
+      },
+      "multilingual-e5-base": {
+        "name": "intfloat/multilingual-e5-base",
+        "type": "local"
+      },
+      "bge-large-zh": {
+        "name": "BAAI/bge-large-zh-v1.5",
+        "type": "local"
+      }
+    }
+  },
+  "database": {
+    "default": "healthcare.db",
+    "schemas": {
+      "healthcare": {
+        "description": "ฐานข้อมูลสุขภาพ",
+        "tables": {
+          "patients": {
+            "columns": [
+              {"name": "Name", "type": "TEXT", "description": "ชื่อผู้ป่วย"},
+              {"name": "Age", "type": "INTEGER", "description": "อายุ"},
+              {"name": "Hospital", "type": "TEXT", "description": "โรงพยาบาล"},
+              {"name": "Medical_Condition", "type": "TEXT", "description": "อาการป่วย"},
+              {"name": "Billing Amount", "type": "REAL", "description": "ค่าใช้จ่าย"},
+              {"name": "DoctorID", "type": "INTEGER", "description": "รหัสแพทย์"}
+            ]
+          }
+        }
+      }
+    }
+  },
+  "evaluation": {
+    "metrics": ["recall_at_k", "execution_accuracy", "exact_match", "component_match", "latency"],
+    "test_cases_file": "tests/comprehensive_test_cases.py",
+    "output_format": ["excel", "json"]
+  }
+}

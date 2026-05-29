@@ -1,0 +1,8 @@
+# !/usr/bin/env python3
+"""
+ทดสอบ LLM โดยตรงเพื่อดู response ที่แท้จริง
+""" import os
+import sys
+import requests
+import json # เพิ่ม path สำหรับ import
+sys.path.append(os.path.join(os.path.dirname(__file__), '..')) def call_typhoon_direct(prompt: str) -> str: """เรียกใช้ Typhoon API โดยตรง""" TYPHOON_ENDPOINT = "https://api.opentyphoon.ai/v1/chat/completions" TYPHOON_API_KEY = os.getenv("TYPHOON_API_KEY") if not TYPHOON_API_KEY: print(" กรุณาตั้งค่า TYPHOON_API_KEY ใน .env") return "" headers = { "Authorization": f"Bearer {TYPHOON_API_KEY}", "Content-Type": "application/json" } data = { "model": "typhoon-v2.1-12b-instruct", "messages": [{"role": "user", "content": prompt}], "max_tokens": 2000, "temperature": 0.0 } print(" ส่ง request ไปยัง Typhoon API...") response = requests.post(TYPHOON_ENDPOINT, headers=headers, json=data) if response.status_code == 200: result = response.json() content = result["choices"][0]["message"]["content"] print(" ได้ response จาก Typhoon API") return content else: print(f" Typhoon API error: {response.status_code}") print(f"Response: {response.text}") return "" def test_simple_prompt(): """ทดสอบ prompt ง่ายๆ""" print(" ทดสอบ LLM ด้วย prompt ง่ายๆ") print("="*50) prompt = """สร้าง SQL สำหรับ: แสดงจำนวนผู้ป่วยแต่ละโรงพยาบาล กรุณาตอบด้วย SQL ที่สมบูรณ์:""" print(f" Prompt: {prompt}") print("-" * 50) response = call_typhoon_direct(prompt) if response: print(" LLM Response:") print(response) print(f"\n Length: {len(response)}") print(f" Contains SELECT: {'SELECT' in response.upper()}") print(f" Contains FROM: {'FROM' in response.upper()}") print(f" Contains GROUP BY: {'GROUP BY' in response.upper()}") else: print(" ไม่ได้ response จาก LLM") if __name__ == "__main__": test_simple_prompt()
