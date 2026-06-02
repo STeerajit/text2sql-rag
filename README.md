@@ -1,157 +1,125 @@
-# Text2SQL RAG System
+<div align="center">
 
-Professional Text-to-SQL system using Retrieval-Augmented Generation (RAG) for converting natural language questions to SQL queries.
+# Thai Text-to-SQL with RAG and LoRA
 
-## Features
+**Undergraduate Thesis — B.Eng. Computer Engineering, CDTI**
 
-- **Question Type Classification** - Automatic question type analysis
-- **Multi-LLM Support** - Support for Typhoon, OpenAI, Claude, Gemini
-- **Multi-Embedding Models** - Support for multiple embedding models
-- **Comprehensive Evaluation** - Standard metrics evaluation
-- **Post-Processing** - Automatic SQL improvement
-- **Batch Processing** - Process multiple questions simultaneously
+*Presented at ECTI National Conference 2025*
+
+[![Python](https://img.shields.io/badge/Python-3.x-3776AB?style=flat&logo=python&logoColor=white)](https://python.org)
+[![HuggingFace](https://img.shields.io/badge/HuggingFace-Transformers-FFD21E?style=flat&logo=huggingface&logoColor=black)](https://huggingface.co)
+[![LangChain](https://img.shields.io/badge/LangChain-RAG-1C3C3C?style=flat)](https://langchain.com)
+[![License](https://img.shields.io/badge/License-MIT-green?style=flat)](LICENSE)
+
+</div>
+
+---
+
+## Overview
+
+A Thai-language Text-to-SQL system that allows non-technical users to query databases using natural language. The system combines **Retrieval-Augmented Generation (RAG)** for schema-aware context retrieval and **LoRA fine-tuning** to adapt LLMs for domain-specific SQL generation.
+
+**Problem:** Non-technical users cannot access complex databases without SQL knowledge.  
+**Solution:** RAG pipeline + LoRA fine-tuned LLMs to bridge Thai natural language and SQL.
+
+---
+
+## Results
+
+### Best Configuration: E5-base-v2 + Typhoon v2.1 12B + LoRA
+
+| Metric | Before Fine-tuning | After LoRA Fine-tuning |
+|--------|:-----------------:|:---------------------:|
+| Exact Match (EM) | 0.76 | **0.80** ↑ |
+| Structural Match (SMT) | 0.79 | **0.82** ↑ |
+| Abstract Syntax Tree (AST) | 0.78 | **0.81** ↑ |
+| Execution Accuracy (EA) | 0.80 | **0.84** ↑ |
+| F1 Score | 0.79 | **0.82** ↑ |
+
+### Retrieval Performance (E5-base-v2, k=10)
+
+| Recall@10 | MRR@10 | nDCG@10 |
+|:---------:|:------:|:-------:|
+| **0.89** | **0.69** | **0.86** |
+
+---
+
+## System Architecture
+
+```
+Thai Question → Embedding Model → Vector Similarity Search
+                                         ↓
+                              Schema Linking + SQL Examples
+                                         ↓
+                              RAG Prompt + LLM → SQL Query
+```
+
+**3-stage pipeline:**
+1. **Input** — User inputs Thai natural language question
+2. **Retrieval** — Embed question → Cosine similarity search → Schema linking + top-k SQL examples
+3. **Generation** — Augmented prompt sent to LLM for SQL generation
+
+---
+
+## Models Evaluated
+
+**Embedding Models:** E5-base-v2 · All-MiniLM-L6-v2 · BGE-base-en-v1.5
+
+**LLMs:** Typhoon v2.1 12B Instruct · OpenThaiGPT 14B 1.5 Instruct · Qwen3-VL-8B-Instruct
+
+---
+
+## Dataset
+
+- **Database:** Northwind Sample Database
+- **RAG evaluation:** 300 samples (Easy / Medium / Hard difficulty)
+- **RAG + LoRA evaluation:** 100 samples
+- **Difficulty levels:** Simple SELECT → Multi-JOIN → CTE (Common Table Expression)
+
+---
 
 ## Installation
 
-### 1. Clone Repository
 ```bash
-git clone <repository-url>
-cd text2sql_rag
-```
-
-### 2. Install Dependencies
-```bash
+git clone https://github.com/STeerajit/text2sql-rag.git
+cd text2sql-rag
 pip install -r requirements.txt
-```
-
-### 3. Setup Environment Variables
-Create a `.env` file in the root directory:
-```env
-# LLM API Keys
-TYPHOON_API_KEY=your_typhoon_api_key
-OPENAI_API_KEY=your_openai_api_key
-ANTHROPIC_API_KEY=your_anthropic_api_key
-GOOGLE_API_KEY=your_google_api_key
-
-# Hugging Face
-HUGGINGFACE_API_KEY=your_huggingface_api_key
-```
-
-### 4. Initialize Database
-```bash
+cp .env.example .env  # Add your API keys
 make setup-data
 ```
 
 ## Usage
 
-### Command Line Interface
-
-**Single Question:**
 ```bash
-python main.py -q "Show patient count by hospital"
-```
+# Single question
+python main.py -q "รายชื่อนักเรียนที่สมัครเรียนปีการศึกษา 2569"
 
-**Interactive Mode:**
-```bash
+# Interactive mode
 python main.py -i
-```
-
-**Batch Processing:**
-```bash
-python main.py -f questions.json -o results.json
-```
-
-**Custom Schema:**
-```bash
-python main.py -q "Your question" -s "Your schema"
-```
-
-### Python API
-
-```python
-from text2sql_rag import Text2SQLRAGSystem
-
-# Initialize system
-system = Text2SQLRAGSystem()
-
-# Process single question
-result = system.process_question("Show all patients")
-print(result['generated_sql'])
 
 # Batch processing
-questions = ["Question 1", "Question 2"]
-results = system.batch_process(questions)
-```
-
-## Testing
-
-### Unit Tests
-```bash
-make test-unit
-```
-
-### Integration Tests
-```bash
-make test-integration
-```
-
-### Performance Benchmarks
-```bash
-make test-benchmarks
-```
-
-### All Tests
-```bash
-make test
+python main.py -f questions.json -o results.json
 ```
 
 ## Evaluation
 
-### Simple Evaluation
 ```bash
-make eval-simple
+make eval        # Full evaluation
+make eval-simple # Quick evaluation
 ```
 
-### Comprehensive Evaluation
-```bash
-make eval
-```
+---
 
-## Development
+## Authors
 
-### Code Quality
-```bash
-make format        # Format code
-make lint         # Check code quality
-make beautify     # Remove emojis and beautify
-make clean-code   # Full code cleanup
-```
+**ธีรชิต โกมลภิส** · ปัณณวัฒน์ นนทิวัฒน์วณิช · ธีระเดช มานุ · ธนกร รักคำ · วรัญญู วงษ์เสรี
 
-### Project Structure
+B.Eng. Computer Engineering, Faculty of Digital Technology, CDTI
 
-```
-text2sql_rag/
-├── src/                    # Source code
-│   └── text2sql_rag/      # Main package
-├── tests/                 # Test files
-│   ├── unit/             # Unit tests
-│   ├── integration/      # Integration tests
-│   └── benchmarks/       # Performance tests
-├── results/              # Experiment results
-├── data/                 # Data files
-├── configs/              # Configuration files
-├── scripts/              # Utility scripts
-└── docs/                 # Documentation
-```
+---
 
-## Contributing
+<div align="center">
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Run tests: `make test`
-5. Submit a pull request
+*If this project helped you, please consider giving it a ⭐*
 
-## License
-
-MIT License
+</div>
